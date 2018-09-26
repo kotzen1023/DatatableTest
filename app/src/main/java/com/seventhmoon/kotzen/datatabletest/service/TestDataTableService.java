@@ -8,11 +8,13 @@ import com.seventhmoon.kotzen.datatabletest.data.Constants;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
+import org.ksoap2.serialization.AttributeInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import static com.seventhmoon.kotzen.datatabletest.MainActivity.dataTable;
+import static com.seventhmoon.kotzen.datatabletest.data.WebServiceParse.parseDataTableToSoapObject;
 import static com.seventhmoon.kotzen.datatabletest.data.WebServiceParse.parseDataTableToXml;
 
 public class TestDataTableService extends IntentService {
@@ -92,7 +94,7 @@ public class TestDataTableService extends IntentService {
             }
         }
 
-        String URL = "http://192.168.1.2/WebService1.asmx";
+        String URL = "http://172.17.8.145/WebService1.asmx";
         Log.e(TAG, "URL = "+URL);
 
         //Log.e(TAG, "rvu01 = "+rvu01);
@@ -131,13 +133,14 @@ public class TestDataTableService extends IntentService {
                 request.addProperty("rows", "2");
                 //request.addProperty("HAA", writer.toString());
                 //request.setInnerText("<HAA>"+writer+"</HAA>");
+                SoapObject mySoap = parseDataTableToSoapObject("dataTableInPut", dataTable, NAMESPACE);
 
-                SoapObject dataTableInPut = new SoapObject("", "dataTableInPut");
-                String input = "<![CDATA["+writer+"]]>";
-                dataTableInPut.setInnerText(writer);
 
-                request.addSoapObject(dataTableInPut);
-                //request.addProperty("dataTableInPut", input);
+
+                Log.e(TAG, "mySoap = "+mySoap);
+
+                request.addSoapObject(mySoap);
+                //request.addProperty("dataTableInPut", writer);
 
 
 
@@ -174,6 +177,7 @@ public class TestDataTableService extends IntentService {
 
                 httpTransport.call(SOAP_ACTION1, envelope); // 設定 SoapAction 所需的標題欄位
 
+                Log.e(TAG, "dump = "+ httpTransport.requestDump);
 
                 // 將 WebService 資訊轉為 DataTable
                 if (envelope.bodyIn instanceof SoapFault) {
